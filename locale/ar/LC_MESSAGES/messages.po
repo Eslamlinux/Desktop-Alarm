@@ -1,0 +1,225 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Desktop Alarm\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+
+msgid "Desktop Alarm"
+msgstr "المنبه"
+
+msgid "Current Time: "
+msgstr "الوقت الحالي: "
+
+msgid "Set New Alarm"
+msgstr "إضافة منبه جديد"
+
+msgid "Time (HH:MM):"
+msgstr "الوقت (س س:د د):"
+
+msgid "Enter time"
+msgstr "أدخل الوقت"
+
+msgid "Day:"
+msgstr "اليوم:"
+
+msgid "Every Day"
+msgstr "كل يوم"
+
+msgid "Monday"
+msgstr "الإثنين"
+
+msgid "Tuesday"
+msgstr "الثلاثاء"
+
+msgid "Wednesday"
+msgstr "الأربعاء"
+
+msgid "Thursday"
+msgstr "الخميس"
+
+msgid "Friday"
+msgstr "الجمعة"
+
+msgid "Saturday"
+msgstr "السبت"
+
+msgid "Sunday"
+msgstr "الأحد"
+
+msgid "Sound:"
+msgstr "الصوت:"
+
+msgid "Default Beep"
+msgstr "التنبيه الافتراضي"
+
+msgid "Bell"
+msgstr "جرس"
+
+msgid "Chime"
+msgstr "رنين"
+
+msgid "Custom Sound"
+msgstr "صوت مخصص"
+
+msgid "Set Alarm"
+msgstr "ضبط المنبه"
+
+msgid "Scheduled Alarms"
+msgstr "المنبهات المجدولة"
+
+msgid "Time"
+msgstr "الوقت"
+
+msgid "Delete Selected"
+msgstr "حذف المحدد"
+
+msgid "Language:"
+msgstr "اللغة:"
+
+msgid "Failed to open database!"
+msgstr "فشل في فتح قاعدة البيانات!"
+
+msgid "Error"
+msgstr "خطأ"
+
+msgid "Could not load sound file: "
+msgstr "تعذر تحميل ملف الصوت: "
+
+msgid "Warning"
+msgstr "تحذير"
+
+msgid "Invalid time format! Please use HH:MM format."
+msgstr "تنسيق الوقت غير صالح! الرجاء استخدام تنسيق س س:د د."
+
+msgid "Invalid time! Hours must be 0-23 and minutes 0-59."
+msgstr "وقت غير صالح! يجب أن تكون الساعات من 0 إلى 23 والدقائق من 0 إلى 59."
+
+msgid "Alarm set for "
+msgstr "تم ضبط المنبه على "
+
+msgid " on "
+msgstr " في "
+
+msgid "Success"
+msgstr "تم بنجاح"
+
+msgid "⏰ Time to wake up!\nCurrent time: %s\nDay: %s"
+msgstr "⏰ حان وقت الاستيقاظ!\nالوقت الحالي: %s\nاليوم: %s"
+
+msgid "Alarm"
+msgstr "المنبه"
+
+msgid "Security"
+msgstr "الأمان"
+
+msgid "Lock Application"
+msgstr "قفل التطبيق"
+
+msgid "Unlock Application"
+msgstr "فتح قفل التطبيق"
+
+msgid "Change Password"
+msgstr "تغيير كلمة المرور"
+
+msgid "Choose Sound File"
+msgstr "اختر ملف الصوت"
+
+msgid "Sound Volume"
+msgstr "مستوى الصوت"
+
+msgid "Add Custom Sound"
+msgstr "إضافة صوت مخصص"
+
+msgid "Sound Settings"
+msgstr "إعدادات الصوت"
+
+msgid "Volume"
+msgstr "مستوى الصوت"
+
+msgid "Test Sound"
+msgstr "اختبار الصوت"
+
+msgid "Add Sound"
+msgstr "إضافة صوت"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Remove Sound"
+msgstr "حذف الصوت"
+
+msgid "Custom Sounds"
+msgstr "الأصوات المخصصة"
+
+msgid "Sound Name:"
+msgstr "اسم الصوت:"
+
+msgid "Enter sound name"
+msgstr "أدخل اسم الصوت"
+
+msgid "Invalid sound file!"
+msgstr "ملف الصوت غير صالح!"
+
+msgid "Sound name already exists!"
+msgstr "اسم الصوت موجود مسبقاً!"
+
+msgid "Sound added successfully!"
+msgstr "تم إضافة الصوت بنجاح!"
+
+msgid "Remove selected sound?"
+msgstr "هل تريد حذف الصوت المحدد؟"
+
+msgid "Confirm"
+msgstr "تأكيد"
+
+msgid "Sound removed successfully!"
+msgstr "تم حذف الصوت بنجاح!"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Use 24-hour format"
+msgstr "استخدام نظام 24 ساعة"
+
+msgid "Enter time (HH:MM)"
+msgstr "أدخل الوقت (س س:د د)"
+
+msgid "Enter time (hh:mm)"
+msgstr "أدخل الوقت (س س:د د)"
+
+msgid "AM"
+msgstr "صباحاً"
+
+msgid "PM"
+msgstr "مساءً"
+
+msgid "Invalid time! Hours must be 1-12 and minutes 0-59."
+msgstr "وقت غير صالح! يجب أن تكون الساعات من 1 إلى 12 والدقائق من 0 إلى 59."
+
+msgid "Snooze"
+msgstr "غفوة"
+
+msgid "Dismiss"
+msgstr "إغلاق"
+
+msgid "Snooze for: "
+msgstr "غفوة لمدة: "
+
+msgid "5 minutes"
+msgstr "5 دقائق"
+
+msgid "10 minutes"
+msgstr "10 دقائق"
+
+msgid "15 minutes"
+msgstr "15 دقيقة"
+
+msgid "30 minutes"
+msgstr "30 دقيقة"
+
+msgid "Snooze alarm set for: %s"
+msgstr "تم ضبط منبه الغفوة على: %s"
+
+msgid "Time to wake up! %s"
+msgstr "حان وقت الاستيقاظ! %s"
