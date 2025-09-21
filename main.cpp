@@ -771,3 +771,35 @@ std::string AlarmFrame::GetCurrentDayOfWeek() {
     return days[ltm->tm_wday];
 }
 
+void AlarmFrame::SaveAlarmToDatabase(const std::string& time, const std::string& day) {
+    std::string query = "INSERT INTO alarms (time, day) VALUES ('" + time + "', '" + day + "');";
+    sqlite3_exec(db, query.c_str(), 0, 0, 0);
+}
+
+void AlarmFrame::OnSetAlarm(wxCommandEvent& event) {
+    wxString alarmTime = alarmTimeInput->GetValue();
+    wxString selectedDay = dayChoice->GetString(dayChoice->GetSelection());
+    
+    // Basic time format validation
+    if (use24HourFormat) {
+        if (alarmTime.length() != 5 || alarmTime[2] != ':' ||
+            !isdigit(alarmTime[0]) || !isdigit(alarmTime[1]) ||
+            !isdigit(alarmTime[3]) || !isdigit(alarmTime[4])) {
+            wxMessageBox(_("Invalid time format! Please use HH:MM format."), _("Error"), wxICON_ERROR);
+            return;
+        }
+
+        int hours = wxAtoi(alarmTime.Left(2));
+        int minutes = wxAtoi(alarmTime.Right(2));
+
+        if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+            wxMessageBox(_("Invalid time! Hours must be 0-23 and minutes 0-59."), _("Error"), wxICON_ERROR);
+            return;
+        }
+    } else {
+        if (alarmTime.length() != 5 || alarmTime[2] != ':' ||
+            !isdigit(alarmTime[0]) || !isdigit(alarmTime[1]) ||
+            !isdigit(alarmTime[3]) || !isdigit(alarmTime[4])) {
+            wxMessageBox(_("Invalid time format! Please use HH:MM format."), _("Error"), wxICON_ERROR);
+            return;
+        }
