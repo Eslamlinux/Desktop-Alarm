@@ -994,4 +994,140 @@ void AlarmFrame::EncryptDatabase() {
         return;
     }
 
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) return;
+
+    // Encrypt each alarm
+    for (const auto& alarm : alarms) {
+        unsigned char iv[EVP_MAX_IV_LENGTH];
+        if (RAND_bytes(iv, EVP_MAX_IV_LENGTH) != 1) {
+            EVP_CIPHER_CTX_free(ctx);
+            continue;
+        }
+
+        std::string data = alarm.first + "|" + alarm.second;
+        if (!EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, key, iv)) {
+            EVP_CIPHER_CTX_free(ctx);
+            continue;
+        }
+
+        std::vector<unsigned char> ciphertext(data.length() + EVP_MAX_BLOCK_LENGTH);
+        int len;
+        if (!EVP_EncryptUpdate(ctx, ciphertext.data(), &len,
+                            (unsigned char*)data.c_str(), data.length())) {
+            EVP_CIPHER_CTX_free(ctx);
+            continue;
+        }
+
+        int ciphertext_len = len;
+        if (!EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len)) {
+            EVP_CIPHER_CTX_free(ctx);
+            continue;
+        }
+        ciphertext_len += len;
+
+        // Store encrypted data
+        sqlite3_stmt* insert_stmt;
+        const char* insert_query = 
+            "INSERT INTO secure_alarms (encrypted_data, iv) VALUES (?, ?);";
+        if (sqlite3_prepare_v2(db, insert_query, -1, &insert_stmt, 0) == SQLITE_OK) {
+            sqlite3_bind_blob(insert_stmt, 1, ciphertext.data(), ciphertext_len, SQLITE_STATIC);
+            sqlite3_bind_blob(insert_stmt, 2, iv, EVP_MAX_IV_LENGTH, SQLITE_STATIC);
+            sqlite3_step(insert_stmt);
+            sqlite3_finalize(insert_stmt);
+        }
+    }
+    
+    EVP_CIPHER_CTX_free(ctx);
+}
+
+wxString AlarmFrame::SecureQuery(const wxString& query, const std::vector<wxString>& params) {
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, 0) != SQLITE_OK) {
+        return "";
+    }
+    
+    for (size_t i = 0; i < params.size(); i++) {
+        sqlite3_bind_text(stmt, i + 1, params[i].c_str(), -1, SQLITE_STATIC);
+    }
+    
+    wxString result;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        result = wxString::FromUTF8((const char*)sqlite3_column_text(stmt, 0));
+    }
+    
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+void AlarmFrame::OnVolumeChange(wxCommandEvent& event) {
+    // Store volume setting
+    int volume = volumeSlider->GetValue();
+    
+    #ifdef __WXMSW__
+    // For Windows, set system volume
+    float normalizedVolume = volume / 100.0f;
+    waveOutSetVolume(NULL, UINT(normalizedVolume * 65535.0f) | (UINT(normalizedVolume * 65535.0f) << 16));
+    #endif
+    
+    // Test current sound with new volume
+    wxString selectedSound = soundChoice->GetString(soundChoice->GetSelection());
+    if (selectedSound != _("Default Beep") && sounds[selectedSound.ToStdString()]) {
+        sounds[selectedSound.ToStdString()]->Play(wxSOUND_ASYNC);
+    }
+}
+
+void AlarmFrame::OnTimeFormatChange(wxCommandEvent& event) {
+    use24HourFormat = event.IsChecked();
+    amPmChoice->Show(!use24HourFormat);
+    mainPanel->Layout();
+    RefreshAlarmList(); // Refresh to update time display format
+}
+
+wxString AlarmFrame::ConvertTo12Hour(const wxString& time24h, bool* isAM) {
+    int hours = wxAtoi(time24h.Left(2));
+    int minutes = wxAtoi(time24h.Right(2));
+    wxString amPm = _("AM");
+
+    if (hours >= 12) {
+        amPm = _("PM");
+        if (hours > 12) {
+            hours -= 12;
+        }
+    } else if (hours == 0) {
+        hours = 12;
+    }
+
+    if (isAM) {
+        *isAM = (amPm == _("AM"));
+    }
+
+    return wxString::Format("%02d:%02d %s", hours, minutes, amPm);
+}
+
+wxString AlarmFrame::ConvertTo24Hour(const wxString& time12h, bool isAM) {
+    int hours = wxAtoi(time12h.Left(2));
+    int minutes = wxAtoi(time12h.Right(2));
+
+    if (!isAM && hours < 12) {
+        hours += 12;
+    } else if (isAM && hours == 12) {
+        hours = 0;
+    }
+
+    return wxString::Format("%02d:%02d", hours, minutes);
+}
+
+AlarmFrame::~AlarmFrame() {
+    if (timer) {
+        timer->Stop();
+        delete timer;
+    }
+    sqlite3_close(db);
+    if (m_taskBarIcon) {
+        m_taskBarIcon->Destroy();
+    }
+    for (auto& sound : sounds) {
+        delete sound.second;
+    }
 }
