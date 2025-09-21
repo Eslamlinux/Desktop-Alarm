@@ -225,5 +225,145 @@ private:
     bool use24HourFormat;
 };
 
+class AlarmTaskBarIcon : public wxTaskBarIcon {
+public:
+    AlarmTaskBarIcon(AlarmFrame* frame) : m_frame(frame) {
+        wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+        wxString iconPath = wxFileName(wxPathOnly(exePath) + "/../icons/alarm-clock.png").GetAbsolutePath();
+        wxIcon icon;
+        if (icon.LoadFile(iconPath, wxBITMAP_TYPE_PNG)) {
+            SetIcon(icon, _("Desktop Alarm"));
+        } else {
+            wxIcon fallbackIcon;
+            fallbackIcon.CopyFromBitmap(wxArtProvider::GetBitmap(wxART_WARNING, wxART_FRAME_ICON));
+            SetIcon(fallbackIcon, _("Desktop Alarm"));
+        }
+    }
 
+private:
+    virtual wxMenu* CreatePopupMenu() {
+        wxMenu* menu = new wxMenu;
+        menu->Append(ID_SHOW, _("Show/Hide"));
+        menu->AppendSeparator();
+        menu->Append(ID_EXIT, _("Exit"));
+        return menu;
+    }
+
+    void OnShowHide(wxCommandEvent&) {
+        m_frame->Show(!m_frame->IsShown());
+    }
+
+    void OnExit(wxCommandEvent&) {
+        m_frame->Close(true);
+    }
+
+    AlarmFrame* m_frame;
+    wxDECLARE_EVENT_TABLE();
+};
+
+wxBEGIN_EVENT_TABLE(AlarmTaskBarIcon, wxTaskBarIcon)
+    EVT_MENU(ID_SHOW, AlarmTaskBarIcon::OnShowHide)
+    EVT_MENU(ID_EXIT, AlarmTaskBarIcon::OnExit)
+wxEND_EVENT_TABLE()
+
+wxIMPLEMENT_APP(AlarmApp);
+
+bool AlarmApp::OnInit() {
+    // Create a professional-looking icon
+    wxBitmap finalIcon(128, 128, 32);
+    wxMemoryDC dc(finalIcon);
+    
+    // Set transparent background
+    dc.SetBackground(*wxWHITE_BRUSH);
+    dc.Clear();
+    
+    // Create gradient background for icon
+    wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (gc) {
+        wxColour startColor(0, 120, 215);  // Professional blue
+        wxColour endColor(0, 80, 170);     // Darker blue
+        gc->SetBrush(gc->CreateLinearGradientBrush(0, 0, 128, 128, startColor, endColor));
+        gc->DrawRoundedRectangle(0, 0, 128, 128, 20);
+        delete gc;
+    }
+    
+    // Draw clock circle
+    dc.SetBrush(wxBrush(*wxWHITE));
+    dc.SetPen(wxPen(*wxWHITE, 3));
+    dc.DrawCircle(64, 64, 50);
+    
+    // Draw clock hands
+    dc.SetPen(wxPen(*wxBLACK, 3));
+    // Hour hand (pointing to 10)
+    dc.DrawLine(64, 64, 64 - 25, 64 - 15);
+    // Minute hand (pointing to 2)
+    dc.DrawLine(64, 64, 64 + 35, 64 - 10);
+    
+    // Draw small bell in corner
+    wxBitmap bellIcon = wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_OTHER, wxSize(32, 32));
+    dc.DrawBitmap(bellIcon, 85, 85, true);
+    
+    dc.SelectObject(wxNullBitmap);
+    
+    // Save the icon
+    wxString iconPath = wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath() + "/icons/alarm-clock.png";
+    finalIcon.SaveFile(iconPath, wxBITMAP_TYPE_PNG);
+    
+    // Set application icon
+    wxIcon appIcon;
+    appIcon.CopyFromBitmap(finalIcon);
+    
+    // Initialize language support
+    m_locale.Init(wxLANGUAGE_DEFAULT);
+    m_locale.AddCatalogLookupPathPrefix(wxT("locale"));
+    m_locale.AddCatalog(wxT("messages"));
+
+    AlarmFrame* frame = new AlarmFrame(_("Desktop Alarm"));
+    frame->SetIcon(appIcon);
+    frame->Show(true);
+    return true;
 }
+
+AlarmFrame::AlarmFrame(const wxString& title)
+    : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(500, 400)) {
+    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+    wxString iconPath = wxFileName(wxPathOnly(exePath) + "/../icons/alarm-clock.png").GetAbsolutePath();
+    wxIcon frameIcon;
+    if (frameIcon.LoadFile(iconPath, wxBITMAP_TYPE_PNG)) {
+        SetIcon(frameIcon);
+    }
+
+    // Create menu bar with security options
+    wxMenuBar *menuBar = new wxMenuBar;
+    wxMenu *securityMenu = new wxMenu;
+    securityMenu->Append(ID_LOCK, _("Lock Application"));
+    securityMenu->Append(ID_UNLOCK, _("Unlock Application"));
+    securityMenu->AppendSeparator();
+    securityMenu->Append(ID_CHANGE_PASSWORD, _("Change Password"));
+    menuBar->Append(securityMenu, _("Security"));
+
+    // Add Settings menu
+    wxMenu* settingsMenu = new wxMenu;
+    settingsMenu->Append(ID_SOUND_SETTINGS, _("Sound Settings"));
+    settingsMenu->AppendSeparator();
+    settingsMenu->AppendCheckItem(ID_TIME_FORMAT, _("Use 24-hour format"));
+    settingsMenu->Check(ID_TIME_FORMAT, true);  // Default to 24-hour
+    menuBar->Append(settingsMenu, _("Settings"));
+
+    SetMenuBar(menuBar);
+
+    // Initialize mainPanel
+    mainPanel = new wxPanel(this, wxID_ANY);
+    CreateUI();
+
+    // Timer Setup
+    timer = new wxTimer(this);
+    Bind(wxEVT_TIMER, &AlarmFrame::OnCheckAlarm, this);
+    Bind(wxEVT_TIMER, &AlarmFrame::UpdateCurrentTime, this);
+    timer->Start(1000); // Check every second
+
+    // Bind security events
+    Bind(wxEVT_MENU, &AlarmFrame::OnLockApp, this, ID_LOCK);
+    Bind(wxEVT_MENU, &AlarmFrame::OnUnlockApp, this, ID_UNLOCK);
+    Bind(wxEVT_MENU, &AlarmFrame::OnChangePassword, this, ID_CHANGE_PASSWORD);
+
