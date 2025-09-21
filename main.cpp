@@ -803,3 +803,137 @@ void AlarmFrame::OnSetAlarm(wxCommandEvent& event) {
             wxMessageBox(_("Invalid time format! Please use HH:MM format."), _("Error"), wxICON_ERROR);
             return;
         }
+
+        int hours = wxAtoi(alarmTime.Left(2));
+        int minutes = wxAtoi(alarmTime.Right(2));
+
+        if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
+            wxMessageBox(_("Invalid time! Hours must be 1-12 and minutes 0-59."), _("Error"), wxICON_ERROR);
+            return;
+        }
+
+        bool isAM = amPmChoice->GetSelection() == 0;
+        alarmTime = ConvertTo24Hour(alarmTime, isAM);
+    }
+
+    SaveAlarmToDatabase(alarmTime.ToStdString(), selectedDay.ToStdString());
+    RefreshAlarmList();
+    alarmTimeInput->Clear();
+    wxMessageBox(_("Alarm set for ") + alarmTime + _(" on ") + selectedDay, _("Success"), 
+                wxICON_INFORMATION);
+}
+
+void AlarmFrame::OnCheckAlarm(wxTimerEvent& event) {
+    std::string currentTime = GetCurrentTime();
+    std::string currentDay = GetCurrentDayOfWeek();
+
+    sqlite3_stmt* stmt;
+    const char* query = "SELECT time FROM alarms WHERE time = ? AND (day = ? OR day = 'Every Day');";
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, currentTime.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, currentDay.c_str(), -1, SQLITE_STATIC);
+
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            wxString message = wxString::Format(_("⏰ Time to wake up!\nCurrent time: %s\nDay: %s"), 
+                                              currentTime, currentDay);
+            wxMessageBox(message, _("Alarm"), wxICON_INFORMATION | wxSTAY_ON_TOP);
+            PlayAlarmSound();
+        }
+    }
+    sqlite3_finalize(stmt);
+}
+
+void AlarmFrame::OnIconize(wxIconizeEvent& event) {
+    Hide();
+}
+
+void AlarmFrame::InitializeSecurity() {
+    isLocked = false;
+    hashedPassword = HashPassword("default"); // Default password
+}
+
+wxString AlarmFrame::HashPassword(const wxString& password) {
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int hashLen;
+    
+    // Create digest context
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx) return "";
+    
+    // Initialize with SHA256
+    if (!EVP_DigestInit_ex(ctx, EVP_sha256(), nullptr)) {
+        EVP_MD_CTX_free(ctx);
+        return "";
+    }
+    
+    // Update with password
+    if (!EVP_DigestUpdate(ctx, password.c_str(), password.length())) {
+        EVP_MD_CTX_free(ctx);
+        return "";
+    }
+    
+    // Finalize
+    if (!EVP_DigestFinal_ex(ctx, hash, &hashLen)) {
+        EVP_MD_CTX_free(ctx);
+        return "";
+    }
+    
+    EVP_MD_CTX_free(ctx);
+    
+    // Convert to hex string
+    wxString hashedStr;
+    for(unsigned int i = 0; i < hashLen; i++) {
+        hashedStr += wxString::Format("%02x", hash[i]);
+    }
+    return hashedStr;
+}
+
+bool AlarmFrame::VerifyPassword(const wxString& password) {
+    return hashedPassword == HashPassword(password);
+}
+
+void AlarmFrame::LockInterface() {
+    isLocked = true;
+    // Disable UI elements
+    alarmTimeInput->Disable();
+    dayChoice->Disable();
+    soundChoice->Disable();
+    amPmChoice->Disable();
+    deleteButton->Disable();
+    alarmList->Disable();
+}
+
+void AlarmFrame::UnlockInterface() {
+    isLocked = false;
+    // Enable UI elements
+    alarmTimeInput->Enable();
+    dayChoice->Enable();
+    soundChoice->Enable();
+    amPmChoice->Enable();
+    deleteButton->Enable();
+    alarmList->Enable();
+}
+
+void AlarmFrame::OnLockApp(wxCommandEvent& event) {
+    LockInterface();
+    wxMessageBox(_("Application locked. Use Unlock to access."), _("Locked"), wxICON_INFORMATION);
+}
+
+void AlarmFrame::OnUnlockApp(wxCommandEvent& event) {
+    wxString password = wxGetPasswordFromUser(_("Enter password to unlock:"), _("Unlock"));
+    if (VerifyPassword(password)) {
+        UnlockInterface();
+        wxMessageBox(_("Application unlocked."), _("Unlocked"), wxICON_INFORMATION);
+    } else {
+        wxMessageBox(_("Incorrect password!"), _("Error"), wxICON_ERROR);
+    }
+}
+
+void AlarmFrame::OnChangePassword(wxCommandEvent& event) {
+    if (isLocked) {
+        wxMessageBox(_("Please unlock the application first."), _("Error"), wxICON_ERROR);
+        return;
+    }
+
+
+}
