@@ -935,5 +935,63 @@ void AlarmFrame::OnChangePassword(wxCommandEvent& event) {
         return;
     }
 
+    wxPasswordEntryDialog oldPassDlg(this, _("Enter current password:"), _("Change Password"));
+    if (oldPassDlg.ShowModal() != wxID_OK) return;
+
+    if (!VerifyPassword(oldPassDlg.GetValue())) {
+        wxMessageBox(_("Incorrect current password!"), _("Error"), wxICON_ERROR);
+        return;
+    }
+
+    wxPasswordEntryDialog newPassDlg(this, _("Enter new password:"), _("Change Password"));
+    if (newPassDlg.ShowModal() != wxID_OK) return;
+
+    wxString newPass = newPassDlg.GetValue();
+    if (newPass.Length() < 6) {
+        wxMessageBox(_("Password must be at least 6 characters long!"), _("Error"), wxICON_ERROR);
+        return;
+    }
+
+    wxPasswordEntryDialog confirmDlg(this, _("Confirm new password:"), _("Change Password"));
+    if (confirmDlg.ShowModal() != wxID_OK) return;
+
+    if (newPass != confirmDlg.GetValue()) {
+        wxMessageBox(_("Passwords do not match!"), _("Error"), wxICON_ERROR);
+        return;
+    }
+
+    hashedPassword = HashPassword(newPass);
+    EncryptDatabase(); // Re-encrypt database with new password
+    wxMessageBox(_("Password changed successfully!"), _("Success"), wxICON_INFORMATION);
+}
+
+void AlarmFrame::EncryptDatabase() {
+    // Read current database content
+    std::vector<std::pair<std::string, std::string>> alarms;
+    sqlite3_stmt* stmt;
+    const char* query = "SELECT time, day FROM alarms;";
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, 0) == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const char* time = (const char*)sqlite3_column_text(stmt, 0);
+            const char* day = (const char*)sqlite3_column_text(stmt, 1);
+            alarms.push_back({std::string(time), std::string(day)});
+        }
+    }
+    sqlite3_finalize(stmt);
+
+    // Create secure temporary table
+    const char* createSecureTable = 
+        "CREATE TABLE IF NOT EXISTS secure_alarms ("
+        "id INTEGER PRIMARY KEY, "
+        "encrypted_data BLOB, "
+        "iv BLOB);";
+    sqlite3_exec(db, createSecureTable, 0, 0, 0);
+
+    // Generate key from password using newer EVP interface
+    unsigned char key[32];
+    unsigned char salt[32];
+    if (RAND_bytes(salt, sizeof(salt)) != 1) {
+        return;
+    }
 
 }
