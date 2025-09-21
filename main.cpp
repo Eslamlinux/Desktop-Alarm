@@ -429,4 +429,74 @@ void AlarmFrame::CreateUI() {
     currentTimeText->SetForegroundColour(wxColour(20, 20, 100));
     mainSizer->Add(currentTimeText, 0, wxALL | wxALIGN_CENTER, 10);
 
-}
+    // Styled input section with rounded corners
+    wxPanel* inputPanel = new wxPanel(mainPanel);
+    inputPanel->SetBackgroundColour(wxColour(245, 245, 255));
+    wxBoxSizer* inputSizer = new wxBoxSizer(wxVERTICAL);
+
+    // Time input with modern styling
+    wxBoxSizer* timeSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* timeLabel = new wxStaticText(inputPanel, wxID_ANY, _("Time:"));
+    timeLabel->SetForegroundColour(wxColour(50, 50, 100));
+    alarmTimeInput = new wxTextCtrl(inputPanel, wxID_ANY, "", 
+                                  wxDefaultPosition, wxDefaultSize,
+                                  wxTE_CENTRE);
+    alarmTimeInput->SetHint(_("Enter time"));
+    
+    amPmChoice = new wxChoice(inputPanel, wxID_ANY);
+    amPmChoice->Append(_("AM"));
+    amPmChoice->Append(_("PM"));
+    amPmChoice->SetSelection(0);
+    amPmChoice->Hide(); // Initially hidden for 24-hour format
+    
+    timeSizer->Add(timeLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    timeSizer->Add(alarmTimeInput, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    timeSizer->Add(amPmChoice, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    inputSizer->Add(timeSizer, 0, wxEXPAND | wxALL, 5);
+
+    // Day selection with modern styling
+    wxBoxSizer* daySizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* dayLabel = new wxStaticText(inputPanel, wxID_ANY, _("Day:"));
+    dayLabel->SetForegroundColour(wxColour(50, 50, 100));
+    dayChoice = new wxChoice(inputPanel, wxID_ANY);
+    dayChoice->Append(_("Every Day"));
+    dayChoice->Append(_("Monday"));
+    dayChoice->Append(_("Tuesday"));
+    dayChoice->Append(_("Wednesday"));
+    dayChoice->Append(_("Thursday"));
+    dayChoice->Append(_("Friday"));
+    dayChoice->Append(_("Saturday"));
+    dayChoice->Append(_("Sunday"));
+    dayChoice->SetSelection(0);
+
+    daySizer->Add(dayLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    daySizer->Add(dayChoice, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    inputSizer->Add(daySizer, 0, wxEXPAND | wxALL, 5);
+
+    // Sound selection with modern styling
+    wxBoxSizer* soundSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* soundLabel = new wxStaticText(inputPanel, wxID_ANY, _("Sound:"));
+    soundLabel->SetForegroundColour(wxColour(50, 50, 100));
+    soundChoice = new wxChoice(inputPanel, wxID_ANY);
+    soundChoice->Append(_("Default Beep"));
+    soundChoice->Append(_("Bell"));
+    soundChoice->Append(_("Chime"));
+    soundChoice->SetSelection(0);
+
+    soundSizer->Add(soundLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    soundSizer->Add(soundChoice, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    inputSizer->Add(soundSizer, 0, wxEXPAND | wxALL, 5);
+
+    // Volume control
+    wxBoxSizer* volumeSizer = new wxBoxSizer(wxVERTICAL);
+    wxStaticText* volumeLabel = new wxStaticText(inputPanel, wxID_ANY, _("Volume:"));
+    volumeLabel->SetForegroundColour(wxColour(50, 50, 100));
+    volumeSlider = new wxSlider(inputPanel, ID_VOLUME_SLIDER, 100, 0, 100,
+                               wxDefaultPosition, wxDefaultSize,
+                               wxSL_HORIZONTAL | wxSL_LABELS);
+    volumeSizer->Add(volumeLabel, 0, wxALL, 5);
+    volumeSizer->Add(volumeSlider, 0, wxEXPAND | wxALL, 5);
+    inputSizer->Add(volumeSizer, 0, wxEXPAND | wxALL, 5);
+
+    inputPanel->SetSizer(inputSizer);
+    mainSizer->Add(inputPanel, 0, wxEXPAND | wxALL, 10);
