@@ -680,3 +680,94 @@ void AlarmFrame::DeleteAlarmFromDatabase(const std::string& time) {
     sqlite3_exec(db, query.c_str(), 0, 0, 0);
 }
 
+void AlarmFrame::OnClose(wxCloseEvent& event) {
+    timer->Stop();
+    event.Skip();
+}
+
+void AlarmFrame::InitializeDatabase() {
+    if (sqlite3_open("alarms.db", &db) != SQLITE_OK) {
+        wxMessageBox(_("Failed to open database!"), _("Error"), wxICON_ERROR);
+    } else {
+        const char* createTableQuery =
+            "CREATE TABLE IF NOT EXISTS alarms ("
+            "id INTEGER PRIMARY KEY, "
+            "time TEXT, "
+            "day TEXT DEFAULT 'Every Day');";
+        sqlite3_exec(db, createTableQuery, 0, 0, 0);
+    }
+}
+
+void AlarmFrame::InitializeSounds() {
+    // Default beep will always work since it uses system beep
+    sounds["Default Beep"] = nullptr;
+
+    // Try to load custom sounds if they exist
+    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+    wxString exeDir = wxPathOnly(exePath);
+    wxString soundsDir = wxFileName(exeDir + "/../sounds").GetAbsolutePath();
+    
+    wxFileName bellFile(soundsDir + "/bell.wav");
+    wxFileName chimeFile(soundsDir + "/chime.wav");
+    
+    if (bellFile.FileExists()) {
+        sounds["Bell"] = new wxSound(bellFile.GetFullPath());
+        if (!sounds["Bell"]->IsOk()) {
+            delete sounds["Bell"];
+            sounds.erase("Bell");
+        }
+    }
+    
+    if (chimeFile.FileExists()) {
+        sounds["Chime"] = new wxSound(chimeFile.GetFullPath());
+        if (!sounds["Chime"]->IsOk()) {
+            delete sounds["Chime"];
+            sounds.erase("Chime");
+        }
+    }
+
+    // Update sound choice control
+    if (soundChoice) {
+        soundChoice->Clear();
+        soundChoice->Append(_("Default Beep"));
+        for (const auto& sound : sounds) {
+            if (sound.first != "Default Beep") {
+                soundChoice->Append(_(sound.first));
+            }
+        }
+        soundChoice->SetSelection(0);
+    }
+}
+
+void AlarmFrame::PlayAlarmSound() {
+    wxString selectedSound = soundChoice->GetString(soundChoice->GetSelection());
+    if (selectedSound == _("Default Beep")) {
+        wxBell();
+    } else if (sounds[selectedSound.ToStdString()]) {
+        // Adjust volume (if supported by the system)
+        #ifdef __WXMSW__
+        float volume = volumeSlider->GetValue() / 100.0f;
+        waveOutSetVolume(NULL, UINT(volume * 65535.0f) | (UINT(volume * 65535.0f) << 16));
+        #endif
+        sounds[selectedSound.ToStdString()]->Play(wxSOUND_ASYNC);
+    }
+}
+
+std::string AlarmFrame::GetCurrentTime() {
+    time_t now = time(0);
+    tm* localTime = localtime(&now);
+
+    char buffer[6];
+    strftime(buffer, sizeof(buffer), "%H:%M", localTime);
+
+    return std::string(buffer);
+}
+
+std::string AlarmFrame::GetCurrentDayOfWeek() {
+    time_t now = time(0);
+    tm* ltm = localtime(&now);
+    std::vector<std::string> days = {"Sunday", "Monday", "Tuesday", "Wednesday", 
+                                    "Thursday", "Friday", "Saturday"};
+    return days[ltm->tm_wday];
+}
+
