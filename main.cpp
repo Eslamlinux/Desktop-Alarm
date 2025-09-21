@@ -367,3 +367,66 @@ AlarmFrame::AlarmFrame(const wxString& title)
     Bind(wxEVT_MENU, &AlarmFrame::OnUnlockApp, this, ID_UNLOCK);
     Bind(wxEVT_MENU, &AlarmFrame::OnChangePassword, this, ID_CHANGE_PASSWORD);
 
+    // Bind sound settings event
+    Bind(wxEVT_MENU, &AlarmFrame::OnSoundSettings, this, ID_SOUND_SETTINGS);
+
+    // Bind time format event
+    Bind(wxEVT_MENU, &AlarmFrame::OnTimeFormatChange, this, ID_TIME_FORMAT);
+
+    // Initialize system tray icon
+    m_taskBarIcon = new AlarmTaskBarIcon(this);
+
+    // Initialize sounds
+    InitializeSounds();
+
+    InitializeDatabase();
+    InitializeSecurity();
+    RefreshAlarmList();
+
+    // Set minimum size
+    SetMinSize(wxSize(400, 300));
+    
+    // Center the window
+    Centre();
+
+    Bind(wxEVT_ICONIZE, &AlarmFrame::OnIconize, this);
+}
+
+void AlarmFrame::CreateUI() {
+    // Create a more attractive gradient background
+    wxColour startColor(190, 210, 255);  // Lighter blue
+    wxColour endColor(220, 230, 255);    // Very light blue
+    
+    mainPanel->SetBackgroundStyle(wxBG_STYLE_PAINT);
+    mainPanel->Bind(wxEVT_PAINT, [=](wxPaintEvent& evt) {
+        wxPaintDC dc(mainPanel);
+        wxRect rect = mainPanel->GetClientRect();
+        
+        // Create rounded rectangle background
+        wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+        if (gc) {
+            // Main gradient
+            gc->SetBrush(gc->CreateLinearGradientBrush(0, 0, 0, rect.height, startColor, endColor));
+            gc->DrawRoundedRectangle(5, 5, rect.width-10, rect.height-10, 15);
+            
+            // Add subtle highlight at top
+            wxColour highlightColor(255, 255, 255, 40);
+            gc->SetBrush(gc->CreateLinearGradientBrush(0, 0, 0, 30, highlightColor, wxColour(255,255,255,0)));
+            gc->DrawRoundedRectangle(5, 5, rect.width-10, 30, 15);
+            
+            delete gc;
+        }
+    });
+    
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+
+    // Modern clock display
+    currentTimeText = new wxStaticText(mainPanel, wxID_ANY, _("Current Time: ") + GetCurrentTime());
+    wxFont timeFont = currentTimeText->GetFont();
+    timeFont.SetPointSize(24);
+    timeFont.SetWeight(wxFONTWEIGHT_BOLD);
+    currentTimeText->SetFont(timeFont);
+    currentTimeText->SetForegroundColour(wxColour(20, 20, 100));
+    mainSizer->Add(currentTimeText, 0, wxALL | wxALIGN_CENTER, 10);
+
+}
