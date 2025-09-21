@@ -135,3 +135,95 @@ private:
             wxMessageBox(_("Invalid sound file!"), _("Error"), wxICON_ERROR);
             return;
         }
+
+        sounds[name.ToStdString()] = newSound;
+        soundChoice->Append(name);
+        nameCtrl->Clear();
+        wxMessageBox(_("Sound added successfully!"), _("Success"), wxICON_INFORMATION);
+    }
+
+    void OnTestSound(wxCommandEvent& event) {
+        wxString selected = soundChoice->GetString(soundChoice->GetSelection());
+        if (sounds.find(selected.ToStdString()) != sounds.end()) {
+            wxSound* sound = sounds[selected.ToStdString()];
+            if (sound) {
+                sound->Play(wxSOUND_ASYNC);
+            }
+        }
+    }
+
+    void OnClose(wxCommandEvent& event) {
+        EndModal(wxID_CLOSE);
+    }
+};
+
+class AlarmFrame : public wxFrame {
+public:
+    AlarmFrame(const wxString& title);
+    friend class AlarmTaskBarIcon;
+
+private:
+    void OnSetAlarm(wxCommandEvent& event);
+    void OnDeleteAlarm(wxCommandEvent& event);
+    void OnCheckAlarm(wxTimerEvent& event);
+    void OnClose(wxCloseEvent& event);
+    void RefreshAlarmList();
+    void OnIconize(wxIconizeEvent& event);
+    void OnLanguageChange(wxCommandEvent& event);
+    void RefreshUI();
+    void OnSoundSettings(wxCommandEvent& event);
+    void OnVolumeChange(wxCommandEvent& event);
+    void OnTimeFormatChange(wxCommandEvent& event);
+    wxString ConvertTo12Hour(const wxString& time24h, bool* isAM = nullptr);
+    wxString ConvertTo24Hour(const wxString& time12h, bool isAM);
+    ~AlarmFrame();
+
+    wxTextCtrl* alarmTimeInput;
+    wxListCtrl* alarmList;
+    wxTimer* timer;
+    sqlite3* db;
+    wxButton* deleteButton;
+    wxStaticText* currentTimeText;
+    wxChoice* dayChoice;
+    wxChoice* soundChoice;
+    wxChoice* amPmChoice; // Add AM/PM choice
+    wxSlider* volumeSlider;
+    AlarmTaskBarIcon* m_taskBarIcon;
+    std::map<std::string, wxSound*> sounds;
+    wxPanel* mainPanel;  // Add panel as member
+
+    void InitializeDatabase();
+    void SaveAlarmToDatabase(const std::string& time, const std::string& day);
+    void DeleteAlarmFromDatabase(const std::string& time);
+    std::string GetCurrentTime();
+    void UpdateCurrentTime(wxTimerEvent& event);
+    void InitializeSounds();
+    void PlayAlarmSound();
+    void LoadSounds();
+    std::string GetCurrentDayOfWeek();
+    void CreateUI();
+
+    wxLocale m_locale;
+
+    // Security related members and methods
+    bool isLocked;
+    wxString hashedPassword;
+    void OnLockApp(wxCommandEvent& event);
+    void OnUnlockApp(wxCommandEvent& event);
+    void OnChangePassword(wxCommandEvent& event);
+    bool VerifyPassword(const wxString& password);
+    wxString HashPassword(const wxString& password);
+    void LockInterface();
+    void UnlockInterface();
+    void InitializeSecurity();
+
+    // Secure database methods
+    void EncryptDatabase();
+    wxString SecureQuery(const wxString& query, const std::vector<wxString>& params);
+
+    // Time format settings
+    bool use24HourFormat;
+};
+
+
+}
