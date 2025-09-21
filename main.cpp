@@ -500,3 +500,183 @@ void AlarmFrame::CreateUI() {
 
     inputPanel->SetSizer(inputSizer);
     mainSizer->Add(inputPanel, 0, wxEXPAND | wxALL, 10);
+
+    // Set alarm button with modern styling
+    wxButton* setAlarmButton = new wxButton(mainPanel, wxID_ANY, _("Set Alarm"));
+    setAlarmButton->SetBackgroundColour(wxColour(0, 120, 215));
+    setAlarmButton->SetForegroundColour(*wxWHITE);
+    mainSizer->Add(setAlarmButton, 0, wxEXPAND | wxALL, 10);
+
+    // Alarms list with modern styling
+    wxStaticBox* listBox = new wxStaticBox(mainPanel, wxID_ANY, _("Scheduled Alarms"));
+    listBox->SetForegroundColour(wxColour(50, 50, 100));
+    wxStaticBoxSizer* listBoxSizer = new wxStaticBoxSizer(listBox, wxVERTICAL);
+
+    alarmList = new wxListCtrl(listBox, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+                             wxLC_REPORT | wxLC_SINGLE_SEL);
+    alarmList->SetBackgroundColour(wxColour(250, 250, 255));
+    alarmList->InsertColumn(0, _("Time"));
+    alarmList->InsertColumn(1, _("Day"));
+    alarmList->SetColumnWidth(0, 150);
+    alarmList->SetColumnWidth(1, 150);
+    listBoxSizer->Add(alarmList, 1, wxEXPAND | wxALL, 5);
+
+    // Delete button with modern styling
+    deleteButton = new wxButton(listBox, wxID_ANY, _("Delete Selected"));
+    deleteButton->SetBackgroundColour(wxColour(220, 50, 50));
+    deleteButton->SetForegroundColour(*wxWHITE);
+    listBoxSizer->Add(deleteButton, 0, wxALL | wxALIGN_RIGHT, 5);
+
+    mainSizer->Add(listBoxSizer, 1, wxEXPAND | wxALL, 10);
+
+    // Language selection with modern styling
+    wxBoxSizer* langSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* langLabel = new wxStaticText(mainPanel, wxID_ANY, _("Language:"));
+    langLabel->SetForegroundColour(wxColour(50, 50, 100));
+    wxChoice* langChoice = new wxChoice(mainPanel, wxID_ANY);
+    langChoice->Append("English");
+    langChoice->Append("العربية");
+    langChoice->SetSelection(0);
+    
+    langSizer->Add(langLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    langSizer->Add(langChoice, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    mainSizer->Add(langSizer, 0, wxALL | wxALIGN_RIGHT, 10);
+
+    mainPanel->SetSizer(mainSizer);
+
+    // Bind events
+    setAlarmButton->Bind(wxEVT_BUTTON, &AlarmFrame::OnSetAlarm, this);
+    deleteButton->Bind(wxEVT_BUTTON, &AlarmFrame::OnDeleteAlarm, this);
+    langChoice->Bind(wxEVT_CHOICE, &AlarmFrame::OnLanguageChange, this);
+    volumeSlider->Bind(wxEVT_SLIDER, &AlarmFrame::OnVolumeChange, this);
+}
+
+void AlarmFrame::OnSoundSettings(wxCommandEvent& event) {
+    SoundSettingsDialog dlg(this, sounds, soundChoice);
+    dlg.ShowModal();
+}
+
+void AlarmFrame::OnLanguageChange(wxCommandEvent& event) {
+    wxString lang = event.GetString();
+    if (lang == "العربية") {
+        m_locale.Init(wxLANGUAGE_ARABIC);
+        SetLayoutDirection(wxLayout_RightToLeft);
+        if (GetMenuBar()) {
+            GetMenuBar()->SetLayoutDirection(wxLayout_RightToLeft);
+        }
+        mainPanel->SetLayoutDirection(wxLayout_RightToLeft);
+    } else {
+        m_locale.Init(wxLANGUAGE_ENGLISH);
+        SetLayoutDirection(wxLayout_LeftToRight);
+        if (GetMenuBar()) {
+            GetMenuBar()->SetLayoutDirection(wxLayout_LeftToRight);
+        }
+        mainPanel->SetLayoutDirection(wxLayout_LeftToRight);
+    }
+    m_locale.AddCatalogLookupPathPrefix(wxT("locale"));
+    m_locale.AddCatalog(wxT("messages"));
+    
+    // Refresh UI with new language and layout
+    RefreshUI();
+}
+
+void AlarmFrame::RefreshUI() {
+    // Update all text elements with new translations
+    SetTitle(_("Desktop Alarm"));
+    currentTimeText->SetLabel(_("Current Time: ") + GetCurrentTime());
+    
+    // Update layout direction for all controls
+    bool isArabic = m_locale.GetLanguage() == wxLANGUAGE_ARABIC;
+    wxLayoutDirection dir = isArabic ? wxLayout_RightToLeft : wxLayout_LeftToRight;
+    
+    // Set layout direction for main panel and all its children
+    mainPanel->SetLayoutDirection(dir);
+    mainPanel->Layout();
+    
+    // Update list control appearance and direction
+    alarmList->SetLayoutDirection(dir);
+    alarmList->DeleteAllColumns();
+    if (isArabic) {
+        // For Arabic, add columns in reverse order for proper RTL display
+        alarmList->InsertColumn(0, _("Day"), wxLIST_FORMAT_RIGHT, 150);
+        alarmList->InsertColumn(0, _("Time"), wxLIST_FORMAT_RIGHT, 150);
+    } else {
+        alarmList->InsertColumn(0, _("Time"), wxLIST_FORMAT_LEFT, 150);
+        alarmList->InsertColumn(1, _("Day"), wxLIST_FORMAT_LEFT, 150);
+    }
+    
+    // Apply modern styling
+    wxFont modernFont = alarmList->GetFont();
+    modernFont.SetPointSize(10);
+    alarmList->SetFont(modernFont);
+    
+    // Refresh all controls
+    alarmTimeInput->SetLayoutDirection(dir);
+    dayChoice->SetLayoutDirection(dir);
+    soundChoice->SetLayoutDirection(dir);
+    amPmChoice->SetLayoutDirection(dir);
+    volumeSlider->SetLayoutDirection(dir);
+    
+    // Update gradient background
+    mainPanel->Refresh();
+    
+    // Refresh alarm list content
+    RefreshAlarmList();
+    Layout();
+}
+
+void AlarmFrame::UpdateCurrentTime(wxTimerEvent& event) {
+    currentTimeText->SetLabel(_("Current Time: ") + GetCurrentTime());
+}
+
+void AlarmFrame::RefreshAlarmList() {
+    alarmList->DeleteAllItems();
+    
+    // Update column headers
+    wxListItem col0;
+    col0.SetId(0);
+    col0.SetText(_("Time"));
+    alarmList->SetColumn(0, col0);
+    
+    wxListItem col1;
+    col1.SetId(1);
+    col1.SetText(_("Day"));
+    alarmList->SetColumn(1, col1);
+    
+    sqlite3_stmt* stmt;
+    const char* query = "SELECT time, day FROM alarms ORDER BY time;";
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, 0) == SQLITE_OK) {
+        int row = 0;
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const unsigned char* time = sqlite3_column_text(stmt, 0);
+            const unsigned char* day = sqlite3_column_text(stmt, 1);
+            
+            wxString timeStr = wxString::FromUTF8((const char*)time);
+            if (!use24HourFormat) {
+                timeStr = ConvertTo12Hour(timeStr);
+            }
+            
+            // Add time and day in separate columns
+            long idx = alarmList->InsertItem(row, timeStr);
+            alarmList->SetItem(idx, 1, _(wxString::FromUTF8((const char*)day)));
+            row++;
+        }
+    }
+    sqlite3_finalize(stmt);
+}
+
+void AlarmFrame::OnDeleteAlarm(wxCommandEvent& event) {
+    long selectedItem = alarmList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+    if (selectedItem != -1) {
+        wxString item = alarmList->GetItemText(selectedItem);
+        wxString time = item.BeforeFirst(' ');
+        DeleteAlarmFromDatabase(time.ToStdString());
+        RefreshAlarmList();
+    }
+}
+
+void AlarmFrame::DeleteAlarmFromDatabase(const std::string& time) {
+    std::string query = "DELETE FROM alarms WHERE time = '" + time + "';";
+    sqlite3_exec(db, query.c_str(), 0, 0, 0);
+}
+
