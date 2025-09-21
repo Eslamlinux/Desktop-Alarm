@@ -36,3 +36,15 @@ enum {
     ID_TIME_FORMAT = wxID_HIGHEST + 100
 };
 
+// Forward declarations
+class AlarmFrame;
+class AlarmTaskBarIcon;
+
+class AlarmApp : public wxApp {
+public:
+    virtual bool OnInit();
+
+private:
+    wxLocale m_locale;
+};
+
