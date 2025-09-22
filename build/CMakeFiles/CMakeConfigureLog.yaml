@@ -28,7 +28,7 @@ events:
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
       
       The C compiler identification is GNU, found in:
-        /media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/3.28.3/CompilerIdC/a.out
+        /build/CMakeFiles/3.28.3/CompilerIdC/a.out
       
   -
     kind: "message-v1"
@@ -50,7 +50,7 @@ events:
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
       
       The CXX compiler identification is GNU, found in:
-        /media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/3.28.3/CompilerIdCXX/a.out
+        /build/CMakeFiles/3.28.3/CompilerIdCXX/a.out
       
   -
     kind: "try_compile-v1"
@@ -61,8 +61,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq"
-      binary: "/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq"
+      source: "/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq"
+      binary: "/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq"
     cmakeVariables:
       CMAKE_C_FLAGS: ""
       CMAKE_C_FLAGS_DEBUG: "-g"
@@ -71,7 +71,7 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq'
+        Change Dir: '/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq'
         
         Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3e5fb/fast
         /usr/bin/gmake  -f CMakeFiles/cmTC_3e5fb.dir/build.make CMakeFiles/cmTC_3e5fb.dir/build
@@ -129,7 +129,7 @@ events:
         COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_3e5fb' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_3e5fb.'
          /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccmjHS6v.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_3e5fb /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_3e5fb.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
         COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_3e5fb' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_3e5fb.'
-        gmake[1]: Leaving directory '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq'
+        gmake[1]: Leaving directory '/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq'
         
       exitCode: 0
   -
@@ -163,11 +163,11 @@ events:
     message: |
       Parsed C implicit link information:
         link line regex: [^( *|.*[/\\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
-        ignore line: [Change Dir: '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq']
+        ignore line: [Change Dir: '/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq']
         ignore line: []
         ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3e5fb/fast]
         ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_3e5fb.dir/build.make CMakeFiles/cmTC_3e5fb.dir/build]
-        ignore line: [gmake[1]: Entering directory '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq']
+        ignore line: [gmake[1]: Entering directory '/build/CMakeFiles/CMakeScratch/TryCompile-xvqhIq']
         ignore line: [Building C object CMakeFiles/cmTC_3e5fb.dir/CMakeCCompilerABI.c.o]
         ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_3e5fb.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c]
         ignore line: [Using built-in specs.]
@@ -294,8 +294,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS"
-      binary: "/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS"
+      source: "/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS"
+      binary: "/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -304,11 +304,11 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS'
+        Change Dir: '/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS'
         
         Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_083dc/fast
         /usr/bin/gmake  -f CMakeFiles/cmTC_083dc.dir/build.make CMakeFiles/cmTC_083dc.dir/build
-        gmake[1]: Entering directory '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS'
+        gmake[1]: Entering directory '/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS'
         Building CXX object CMakeFiles/cmTC_083dc.dir/CMakeCXXCompilerABI.cpp.o
         /usr/bin/c++   -v -o CMakeFiles/cmTC_083dc.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp
         Using built-in specs.
@@ -406,11 +406,11 @@ events:
     message: |
       Parsed CXX implicit link information:
         link line regex: [^( *|.*[/\\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
-        ignore line: [Change Dir: '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS']
+        ignore line: [Change Dir: '/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS']
         ignore line: []
         ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_083dc/fast]
         ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_083dc.dir/build.make CMakeFiles/cmTC_083dc.dir/build]
-        ignore line: [gmake[1]: Entering directory '/media/eslam/88C20D18C20D0C5E/my projects/clock/0.5/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS']
+        ignore line: [gmake[1]: Entering directory '/build/CMakeFiles/CMakeScratch/TryCompile-YYxtFS']
         ignore line: [Building CXX object CMakeFiles/cmTC_083dc.dir/CMakeCXXCompilerABI.cpp.o]
         ignore line: [/usr/bin/c++   -v -o CMakeFiles/cmTC_083dc.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [Using built-in specs.]
